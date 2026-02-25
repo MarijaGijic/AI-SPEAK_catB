@@ -23,13 +23,37 @@ def spectrum_mean(waveform: torch.Tensor, n_fft: int = 1024, hop_length: int = 2
 
     return magnitude, phase, mean_mag
 
-def spectral_subtraction(waveform: torch.Tensor, noise_mag: torch.Tensor, sample_rate: int,n_fft: int = 1024, hop_length: int = 256, alpha: float = 1.5) -> torch.Tensor:
+def spectral_subtraction(waveform: torch.Tensor, noise_mag: torch.Tensor, n_fft: int = 1024, hop_length: int = 256,
+                        alpha: float = 1.5) -> torch.Tensor:
+
     if waveform.dim() == 2:
         waveform = waveform.mean(dim=0)
-        mag, phase, _ = spectrum_mean(waveform)
-        clean_mag = torch.clamp(mag - alpha * noise_mag.unsqueeze(1), min=0.0)
-        clean_stft = clean_mag * torch.exp(1j * phase)
-        clean_waveform = torch.istft(clean_stft, n_fft=n_fft, hop_length=hop_length, window=torch.hann_window(n_fft, device=waveform.device))
+
+    window = torch.hann_window(n_fft, device=waveform.device)
+
+    stft = torch.stft(
+        waveform,
+        n_fft=n_fft,
+        hop_length=hop_length,
+        window=window,
+        return_complex=True,
+        center=True
+    )
+
+    mag = torch.abs(stft)
+    phase = torch.angle(stft)
+
+    clean_mag = torch.clamp(mag - alpha * noise_mag.unsqueeze(1), min=0.0)
+
+    clean_stft = clean_mag * torch.exp(1j * phase)
+
+    clean_waveform = torch.istft(
+        clean_stft,
+        n_fft=n_fft,
+        hop_length=hop_length,
+        window=window,
+        length=waveform.shape[-1]
+    )
 
     return clean_waveform.unsqueeze(0)
 
