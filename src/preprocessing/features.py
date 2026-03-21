@@ -24,11 +24,13 @@ def extract_audio_features(wav_path: str, n_frames: int | None, use_preprocessin
     f0_norm = np.clip(f0 / 400.0, 0.0, 1.0)[np.newaxis, :]
     feats   = np.concatenate([mfcc, d_mfcc, dd_mfcc,
                                log_e, d_loge, f0_norm], axis=0).T # (T, 123)
-    T = feats.shape[0]
-    if T < n_frames:
-        feats = np.concatenate([feats, np.zeros((n_frames-T, feats.shape[1]), dtype=np.float32)])
-    else:
-        feats = feats[:n_frames]
+    
+    if n_frames is not None:          # fix: only trim/pad for real samples
+        T = feats.shape[0]
+        if T < n_frames:
+            feats = np.concatenate([feats, np.zeros((n_frames - T, feats.shape[1]), dtype=np.float32)])
+        else:
+            feats = feats[:n_frames]
 
     return feats.astype(np.float32)
 
