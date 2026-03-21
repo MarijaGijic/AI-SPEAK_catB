@@ -1,5 +1,6 @@
 import torch, torch.nn as nn, math
 from src.config import FEAT_DIM, HUBERT_DIM, N_PHONEMES, N_BLENDSHAPES
+
 class InputEncoder(nn.Module):
     def __init__(self, d_model=256, phoneme_emb_dim=32, speaker_emb_dim=8,
                  n_phonemes=N_PHONEMES, n_speakers=2, dropout=0.1,
