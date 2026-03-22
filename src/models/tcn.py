@@ -9,10 +9,10 @@ from .base import InputEncoder, OutputHead
 class BlendshapeTCN(nn.Module):
 
     def __init__(self, d_model=256, n_channels=256, skip_channels=256,
-                 kernel_size=3, n_layers=8, dropout=0.1, n_speakers=2, audio_type="mfcc", use_phonems=True):
+                 kernel_size=3, n_layers=8, dropout=0.1, n_speakers=2, audio_type="mfcc", use_phonemes=True):
         super().__init__()
         self.encoder = InputEncoder(d_model=d_model, n_speakers=n_speakers, dropout=dropout,
-                                    audio_type=audio_type, use_phonemes=use_phonems)
+                                    audio_type=audio_type, use_phonemes=use_phonemes)
         self.input_conv = nn.Conv1d(d_model, n_channels, 1)
 
         # pytorch tcn
@@ -39,10 +39,9 @@ class BlendshapeTCN(nn.Module):
         print(f'TCN: {n_layers} slojeva, RF={rf} frejmova ({rf/60*1000:.0f}ms)')
         print(f'Parametara: {self.count_params():,}')
 
-    def forward(self, hubert, pi, pt, si, lengths=None):
+    def forward(self, af, pi, pt, si, lengths=None, hubert=None):
 
-        x = self.encoder(hubert, pi, pt, si)
-        # mora biti 1d za konv
+        x = self.encoder(af, pi, pt, si, hubert=hubert)
         x = x.transpose(1, 2)
         x = self.input_conv(x)
 
