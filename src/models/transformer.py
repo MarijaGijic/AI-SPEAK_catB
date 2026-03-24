@@ -28,8 +28,8 @@ class BlendshapeTransformer(nn.Module):
                                            batch_first=True, norm_first=True)
         self.transformer = nn.TransformerEncoder(layer, num_layers=n_layers)
         self.head = OutputHead(d_model, dropout=dropout)
-    def forward(self, af, pi, pt, si, lengths=None):
-        x = self.pos_enc(self.encoder(af, pi, pt, si))
+    def forward(self, af, pi, pt, si, lengths=None, hubert = None):
+        x = self.pos_enc(self.encoder(af, pi, pt, si, hubert=hubert))
         T, device = x.size(1), x.device
         mask = torch.ones(T, T, dtype=torch.bool, device=device)
         for i in range(T):
