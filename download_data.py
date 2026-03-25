@@ -11,6 +11,7 @@ files = {
     "spk08_blendshapes.zip": "1onjc_aw990qQAsvszLSI9rpXS2SkJFVd",
     "labels_aligned.zip": "1KduEMO5DqqdQLXPd45W6knSFIuODxMqR",
     "audio_synth.zip": "16e8VnAhH2L-smgt9FGpwC1k0bhA8X6Kq",
+    "test_set_catB.zip": "1dbQTuS9Kw5-1iiqfAt0jQUqlJEUBFCyx"
 }
 
 for filename, file_id in files.items():
