@@ -52,9 +52,9 @@ def _build_model(model_type: str, audio_type: str, device: str, **kwargs):
     elif model_type == "tcn":
         model = BlendshapeTCN(**common)
     elif model_type == "transformer":
-        # transformer nema audio_type / use_phonemes parametar u trenutnoj verziji
-        common.pop("audio_type", None)
-        common.pop("use_phonemes", None)
+        # transformer nema audio_type / use_phonemes parametar u trenutnoj verziji - fixovano
+        # common.pop("audio_type", None)
+        # common.pop("use_phonemes", None)
         model = BlendshapeTransformer(**common)
     else:
         raise ValueError(f"Nepoznat model_type: {model_type}. Koristiti: gru | tcn | transformer")
@@ -89,7 +89,7 @@ def _run_epoch(model, loader, optimizer, device, audio_type, is_train):
 
             pred = model(af, pi, pt, si, lengths=lengths, hubert=hubert)  # (B, T, 52)
 
-            loss, metrics = combined_loss(pred, targets, mask)
+            loss, components = combined_loss(pred, targets, mask)
 
             if is_train:
                 optimizer.zero_grad()
@@ -98,9 +98,9 @@ def _run_epoch(model, loader, optimizer, device, audio_type, is_train):
                 optimizer.step()
 
             total_loss += loss.item()
-            total_mse  += metrics["mse"]
-            total_vel  += metrics["vel"]
-            total_acc  += metrics["acc"]
+            total_mse  += components["mse"]
+            total_vel  += components["vel"]
+            total_acc  += components["acc"]
             n_batches  += 1
 
     n = max(n_batches, 1)
@@ -179,7 +179,7 @@ def train(
 
     train_loader = DataLoader(train_ds, batch_size=batch_size, shuffle=True,
                               collate_fn=collate, num_workers=2, pin_memory=True)
-    val_loader   = DataLoader(val_ds,   batch_size=batch_size, shuffle=False,
+    val_loader   = DataLoader(val_ds, batch_size=batch_size, shuffle=False,
                               collate_fn=collate, num_workers=2, pin_memory=True)
 
     print(f"[Train] Train: {n_train}  Val: {n_val}  Batch: {batch_size}")
@@ -196,7 +196,8 @@ def train(
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer, mode="min", factor=0.5, patience=5
-    )
+    ) 
+    # scheduler_cos = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs, eta_min=lr*0.01)
 
     # ResultsManager 
     rm = ResultsManager(
@@ -232,7 +233,7 @@ def train(
     for epoch in range(1, epochs + 1):
 
         train_metrics = _run_epoch(model, train_loader, optimizer, device, audio_type, is_train=True)
-        val_metrics   = _run_epoch(model, val_loader,   optimizer, device, audio_type, is_train=False)
+        val_metrics   = _run_epoch(model, val_loader, optimizer, device, audio_type, is_train=False)
 
         scheduler.step(val_metrics["loss"])
         rm.log_epoch(epoch, train=train_metrics, val=val_metrics)
