@@ -35,14 +35,15 @@ def extract_hubert_features(y_16k: np.ndarray, n_frames: int) -> np.ndarray:
         y_16k, sampling_rate=HUBERT_SR, return_tensors='pt', padding=False
     )
 
-    cpu_model = HUBERT_MODEL.cpu()
+    # cpu_model = HUBERT_MODEL.cpu()
     with torch.no_grad():
-        feats = cpu_model(inputs.input_values).last_hidden_state
-    HUBERT_MODEL.to(DEVICE)
+        input_values = inputs.input_values.to(DEVICE)
+        feats = HUBERT_MODEL(input_values).last_hidden_state
+    # HUBERT_MODEL.to(DEVICE)
 
     feats_60 = F.interpolate(
         feats.transpose(1, 2), size=n_frames,
         mode='linear', align_corners=False
     ).transpose(1, 2)
 
-    return feats_60.squeeze(0).numpy().astype(np.float32)
+    return feats_60.squeeze(0).cpu().numpy().astype(np.float32)
