@@ -140,6 +140,7 @@ def train(
     results_root: str   = "/content/results",
     ckpt_every:   int   = 5,           # cuva checkpoint svakih N epoha
     display_inline: bool = True,
+    **model_kwargs,
 ) -> str:
     """
     Trenira model i cuva rezultate u /content/results/<model>_<timestamp>/.
@@ -191,6 +192,7 @@ def train(
         device       = device,
         d_model      = d_model,
         use_phonemes = use_phonemes,
+        **model_kwargs,
     )
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
