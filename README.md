@@ -59,7 +59,7 @@ AI-SPEAK_catB/
 ## Installation
 
 ```bash
-git clone https://github.com/alexandarM/AI-SPEAK_catB.git
+git clone https://github.com/MarijaGijic/AI-SPEAK_catB.git
 cd AI-SPEAK_catB
 pip install -r requirements.txt
 ```
@@ -149,6 +149,8 @@ python scripts/export_onnx.py \
     --checkpoint results/gru_mfcc_20240101/best_model.pt \
     --output_dir onnx_models
 ```
+
+> **Note:** ONNX export is implemented but not yet tested or experimented with.
 
 ## Notebooks
 
