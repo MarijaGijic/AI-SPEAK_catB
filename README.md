@@ -43,13 +43,15 @@ AI-SPEAK_catB/
 │       └── Visualization/         # Training results and plotting
 ├── scripts/
 │   ├── train.py                   # Main training script
-│   ├── infer.py                   # Inference: audio → blendshapes CSV
 │   ├── export_onnx.py             # ONNX model export
 │   └── precompute_hubert.py       # Pre-compute HuBERT features
 ├── notebooks/
-│   ├── train_gru_tcn.ipynb        # Training notebook (Colab-ready)
-│   └── inference.ipynb            # Inference notebook
+│   ├── train_gru_tcn.ipynb        # GRU & TCN training (Colab-ready)
+│   ├── train_model.ipynb          # TCN + MFCC training (Colab-ready)
+│   └── Inference_script.ipynb     # Inference notebook
+├── results_tcn_mfcc/              # Sample training results (TCN + MFCC)
 ├── data/                          # Dataset directory (see below)
+├── model.py                       # Standalone model definition
 ├── download_data.py               # Download dataset from Google Drive
 └── requirements.txt
 ```
@@ -138,28 +140,7 @@ Training outputs are saved to `results/<model>_<audio>_<timestamp>/` and include
 
 ## Inference
 
-```bash
-python scripts/infer.py \
-    --checkpoint results/gru_mfcc_20240101/best_model.pt \
-    --wav audio/test.wav \
-    --output predictions.csv \
-    --speaker spk08
-```
-
-### Inference Arguments
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--checkpoint` | — | Path to `best_model.pt` (required) |
-| `--wav` | — | Input audio file (required) |
-| `--output` | — | Output CSV path (required) |
-| `--speaker` | `spk08` | Speaker ID |
-| `--chunk_size` | `120` | Frames per window (120 = 2 s at 60 FPS) |
-| `--overlap` | `60` | Overlap between windows (50%) |
-| `--hubert_dir` | — | Pre-computed HuBERT features directory |
-| `--device` | `cuda` | `cuda` or `cpu` |
-
-The output CSV has one row per frame and 52 columns — one per blendshape.
+Use the `Inference_script.ipynb` notebook to run inference on a WAV file and produce a blendshape CSV. The output has one row per frame and 52 columns — one per blendshape.
 
 ## ONNX Export
 
@@ -171,7 +152,13 @@ python scripts/export_onnx.py \
 
 ## Notebooks
 
-Both notebooks in `notebooks/` are Colab-ready. They clone the repo, install dependencies, and run training or inference end-to-end.
+All notebooks in `notebooks/` are Colab-ready. They clone the repo, install dependencies, and run end-to-end.
+
+| Notebook | Description |
+|----------|-------------|
+| `train_gru_tcn.ipynb` | Train GRU or TCN with MFCC or HuBERT features |
+| `train_model.ipynb` | TCN + MFCC training with suggested parameters |
+| `Inference_script.ipynb` | Run inference on a WAV file, output blendshape CSV |
 
 ## Configuration
 
